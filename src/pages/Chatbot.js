@@ -37,22 +37,22 @@ const Chatbot = () => {
 
 
 
- const voicehandleSearchSourceStations = async (src) => {
-   const response = await axios.get(
-     `/search_station?query=${src}&toLang=${state}`
-   );
-   // console.log(response.data);
-   setSourceCityStations(response.data);
-   setIsSourceCityActive(true);
- };
-   const voicehandleSearchDestinationStations = async (dest) => {
-     const response = await axios.get(
-       `/search_station?query=${dest}&toLang=${state}`
-     );
-     // console.log(response.data);
-     setDestinationCityStations(response.data);
-     setIsDestinationCityActive(true);
-   };
+//  const voicehandleSearchSourceStations = async (src) => {
+//    const response = await axios.get(
+//      `/search_station?query=${src}&toLang=${state}`
+//    );
+//    // console.log(response.data);
+//    setSourceCityStations(response.data);
+//    setIsSourceCityActive(true);
+//  };
+//    const voicehandleSearchDestinationStations = async (dest) => {
+//      const response = await axios.get(
+//        `/search_station?query=${dest}&toLang=${state}`
+//      );
+//      // console.log(response.data);
+//      setDestinationCityStations(response.data);
+//      setIsDestinationCityActive(true);
+//    };
    
 
 
@@ -71,24 +71,28 @@ const Chatbot = () => {
           recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript;
             console.log(`You said: ${transcript}`);
+              const response = axios.get(
+                `/queryDetails?query=${transcript}&toLang=${state}`
+              );
+              console.log(response);
             
             //console.log(voiceData);
-            const response=axios.get(`/voiceData?vData=${transcript}&toLang=${state}`);
-            console.log(response)
-            response.then((obj)=>{
-              const res=obj.data;
-              console.log(res)
+            // const response=axios.get(`/voiceData?vData=${transcript}&toLang=${state}`);
+            // console.log(response)
+            // response.then((obj)=>{
+            //   const res=obj.data;
+            //   console.log(res)
   
               //  console.log(1);
               
-               voicehandleSearchSourceStations(res.start);
-               setTimeout(()=>{
-                 voicehandleSearchDestinationStations(res.dest)
+            //    voicehandleSearchSourceStations(res.start);
+            //    setTimeout(()=>{
+            //      voicehandleSearchDestinationStations(res.dest)
 
-               },30000)
-               setJourneyDate(res.date);
+            //    },30000)
+            //    setJourneyDate(res.date);
                
-             } )
+            //  } )
             
             
             const lang = franc(transcript);
@@ -128,52 +132,7 @@ const Chatbot = () => {
        console.log(response);
     
     }
-    // const getAllqueryDetails=()=>{
-    //         if(text=="")
-    //         {
-    //             toast.warning("Enter the text",
-    //             {
-    //         position: toast.POSITION.TOP_RIGHT
-    //              });
-    //             return;
-    //         }
-    //     //    const response=axios.get(`/queryDetails?query=${text}&toLang=${state}`);
-            
-    //        const srcCity="Delhi";
-    //        const destCity="Kurukshetra";
-    //        const srcstationCode="NDLS";
-    //        const deststationCode="KKDE";
-    //        const jourDate="";
-    //        const durationTime="8";
-    //        const pnrNum = "1234567890";
-    //         if (
-    //           srcstationCode != "" &&
-    //           deststationCode != "" &&
-    //           jourDate != ""
-    //         ) {
-    //           setSourceStation(srcstationCode);
-    //           setDestinationStation(deststationCode);
-    //           setJourneyDate(jourDate);
-    //           searchAllTrains();
-    //         }
-    //        else if(srcCity!="")
-    //        {
-    //           setSourceCity(srcCity);
-    //           handleSearchSourceStations();
-    //        }
-    //        else if(destCity!="")
-    //        {
-    //         setDestinationCity(destCity);
-    //         handleSearchDestinationStations();
-    //        }
-          
-    //        if(pnrNum!="")
-    //        {
-    //            setPnrNumber(pnrNum);
-    //            searchPnrStatus();
-    //        }
-
-    //   };
+    
   return (
     <div>
       <div>
@@ -189,8 +148,8 @@ const Chatbot = () => {
           onChange={(e)=>setText(e.target.value)}
         ></textarea>
         <label
-          for="exampleFormControlTextarea1"
-          class="pointer-events-none absolute left-3 top-0 mb-0 max-w-[90%] origin-[0_0] truncate pt-[0.37rem] leading-[1.6] text-neutral-500 transition-all duration-200 ease-out peer-focus:-translate-y-[0.9rem] peer-focus:scale-[0.8] peer-focus:text-primary peer-data-[te-input-state-active]:-translate-y-[0.9rem] peer-data-[te-input-state-active]:scale-[0.8] motion-reduce:transition-none dark:text-neutral-200 dark:peer-focus:text-primary"
+          htmlFor="exampleFormControlTextarea1"
+          className="pointer-events-none absolute left-3 top-0 mb-0 max-w-[90%] origin-[0_0] truncate pt-[0.37rem] leading-[1.6] text-neutral-500 transition-all duration-200 ease-out peer-focus:-translate-y-[0.9rem] peer-focus:scale-[0.8] peer-focus:text-primary peer-data-[te-input-state-active]:-translate-y-[0.9rem] peer-data-[te-input-state-active]:scale-[0.8] motion-reduce:transition-none dark:text-neutral-200 dark:peer-focus:text-primary"
         >
           Example textarea
         </label>
