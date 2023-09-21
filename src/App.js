@@ -11,6 +11,7 @@ import TrainDetails from './pages/TrainDetails';
 import NavBar from './components/NavBar';
 
 import SearchForTrain from './pages/SearchForTrain';
+import Announcement from './pages/Announcement';
 {/*
  <div className="relative sm:-8 p-4 bg-[#13131a] min-h-screen flex flex-row">
       <div className="sm:flex hidden mr-10 relative">
@@ -43,7 +44,7 @@ function App() {
         <Route path="/trainDetails/:id" element={<TrainDetails/>}/>
         <Route path="/choose" element={<Choose></Choose>}></Route>
         <Route path="/chatbot" element={<Chatbot></Chatbot>}></Route>
-     
+        <Route path="/announcement" element={<Announcement/>}></Route>
       </Routes>
     </>
   );

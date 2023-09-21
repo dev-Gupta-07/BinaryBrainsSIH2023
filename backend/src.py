@@ -2,13 +2,18 @@ from textblob import TextBlob
 from googletrans import Translator
 import spacy
 import re
+from pydub import AudioSegment
+from pydub.playback import play
+from gtts import gTTS
+
+import os
 nlp = spacy.load("en_core_web_sm")
 
 from flask import Flask, request, jsonify
 import requests
 
 app = Flask(__name__)
-API_KEY = "0e08c6cc73msha55f83b3d8d091fp137db5jsn1bb5fd0fbd05"
+API_KEY = "9c1dc109ccmsh16fa54b80272afep1c1d10jsnd9510a76e859"
 
 def words_to_number(word_string):
     
@@ -444,7 +449,7 @@ def get_all_Details():
           search_dest_station_response = requests.get(
               f'http://localhost:5000/search_station?query={destination}&toLang={lang}')
           print(search_dest_station_response.json())
-          dict = {"srcStation": search_station_response.json(),
+          dict = {"flag":1,"srcStation": search_station_response.json(),
                   "destStation": search_dest_station_response.json()}
           return jsonify(dict)
       elif (starting_point != "" ):
@@ -452,14 +457,11 @@ def get_all_Details():
           search_station_response = requests.get(
               f'http://localhost:5000/search_station?query={starting_point}&toLang={lang}')
           print(search_station_response.json())
-          return jsonify(search_station_response.json())
-      elif(destination!=""):
-          search_dest_station_response = requests.get(
-              f'http://localhost:5000/search_station?query={destination}&toLang={lang}')
-          print(search_dest_station_response.json())
-          return jsonify(search_dest_station_response.json())
-      if(starting_point=="" and destination==""):
-          return jsonify({'warning': 'Enter the details'})
+          dict={"flag":2,"srcStation":search_station_response.json()}
+          return jsonify(dict)
+      elif(starting_point=="" and destination==""):
+          dict = {"flag": 3, 'warning': 'Enter the details'}
+          return jsonify(dict)
       
     elif (fval == "TrainsbetweenStations"):
         print("ved")
@@ -471,10 +473,12 @@ def get_all_Details():
             print("enter")
             trainbtwStations=requests.get(
                 f'http://localhost:5000/trains?sourceStation={source_code}&destinationStation={dest_code}&journeyDate={journey_date}&lang={lang}')
-            return jsonify(trainbtwStations.json())
+            dict = {"flag": 4, "trains": trainbtwStations.json()}
+            return jsonify(dict)
         elif (source_code != None and dest_code != None and journey_date == None):
             print("enter 2")
-            return jsonify({'warning':'Enter the journey date'})
+            dict = {"flag": 5, 'warning': 'Enter the journey date'}
+            return jsonify(dict)
         elif(starting_point!="" and destination!="" and journey_date!=None):
             print("enter3")
             print(starting_point)
@@ -487,43 +491,50 @@ def get_all_Details():
             search_dest_station_response = requests.get(
               f'http://localhost:5000/search_station?query={destination}&toLang={lang}')
             print(search_dest_station_response.json())
-            dict={"srcStation":search_station_response.json(),"destStation":search_dest_station_response.json(),"message":"Renter the query with cooresponding station codes"}
+            dict={"flag":6,"srcStation":search_station_response.json(),"destStation":search_dest_station_response.json(),"message":"Renter the query with cooresponding station codes"}
             print(dict)
             return jsonify(dict)
         elif(source_code!=None and destination!="" and journey_date!=None):
             print("enter4")
             search_dest_station_response = requests.get(
                 f'http://localhost:5000/search_station?query={destination}&toLang={lang}')
-            dict = {"destStation": search_dest_station_response.json(),
+            dict = {"flag":7,"srcStation": search_dest_station_response.json(),
                     "message": "Renter the query with cooresponding destination station codes"}
             return jsonify(dict)
         elif(starting_point!="" and dest_code!=None and journey_date!=None):
             print("enter5")
             search_station_response = requests.get(
                 f'http://localhost:5000/search_station?query={starting_point}&toLang={lang}')
-            dict = {"srcStation": search_station_response.json(),
+            dict = {"flag":8,"srcStation": search_station_response.json(),
                     "message": "Renter the query with cooresponding source station codes"}
             return jsonify(dict)
         else:
-            return jsonify({'warning':'Enter the proper details with station codes and journey date'})
+            dict={"flag":9,'warning':'Enter the proper details with station codes and journey date'}
+            return jsonify(dict)
         
     elif (fval == "TrainNumStatus"):
         if(Train_Num!=0 and (Train_Num>=10000 and Train_Num<=99999)):
             trainStatus = requests.get(
                 f'http://localhost:5000/getLiveTrainStatus?train_num={Train_Num}&lang={lang}')
-            return jsonify(trainStatus.json())
+            
+            dict = {"flag": 10, "trainStatus": trainStatus.json()}
+            return jsonify(dict)
         else:
-            return jsonify({'warning': 'Enter the proper details with correct train number'})
+            dict = {
+                "flag": 11, 'warning': 'Enter the proper details with correct train number'}
+            return jsonify(dict)
     
     elif (fval == "TrainNumSchedule"):
         if (Train_Num != 0 and (Train_Num >= 10000 and Train_Num <= 99999)):
             trainSchedule = requests.get(
                 f'http://localhost:5000/get_train_schedule?trainNo={Train_Num}&lang={lang}')
             print(trainSchedule.json())
-            return jsonify(trainSchedule.json())
+            dict = {"flag": 12, "trainSchedule": trainSchedule.json()}
+            return jsonify(dict)
 
         else:
-            return jsonify({'warning': 'Enter the proper details with correct train number'})
+            dict = {"flag": 13,'warning': 'Enter the proper details with correct train number'}
+            return jsonify(dict)
         
     elif(fval=="PNRNumber"):
         print(pnr)
@@ -531,10 +542,14 @@ def get_all_Details():
             pnrNum=requests.get(
                 f'http://localhost:5000/get_pnr_status?pnrNumber={pnr}&lang={lang}'
             )
+
             print(pnrNum.json())
-            return jsonify(pnrNum.json())
+            dict = {"flag": 14, "pnrNum": pnrNum.json()}
+            return jsonify(dict)
         else:
-            return jsonify({'warning': 'Enter the proper details with correct pnr number'})
+            dict = {
+                "flag": 15, 'warning': 'Enter the proper details with correct pnr number'}
+            return jsonify(dict)
 
 
 
@@ -560,6 +575,20 @@ def get_all_Details():
 
 
 
+@app.route("/announcement",methods=['GET'])
+def announcement_response():
+    vData = request.args.get("query")
+    lang = request.args.get("toLang")
+    print(vData)
+    translator=Translator()
+    transText=translator.translate(vData,dest="en").text
+    print(transText)
+    translatedText=translator.translate(transText,dest=lang).text
+    print(translatedText)
+    tts = gTTS(translatedText, lang=lang)
+    output_file = "output.mp3"
+    tts.save(output_file)
+    os.system(output_file)
 
 
 

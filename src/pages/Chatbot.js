@@ -7,21 +7,18 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import CustomButton from "../components/CustomButton";
+import ShowBothStations from '../chatbotcomponents/ShowBothStations';
+import ShowSingleStation from '../chatbotcomponents/ShowSingleStation';
+import WarningFirst from '../chatbotcomponents/WarningFirst';
+import TrainsBothCodes from '../chatbotcomponents/TrainsBothCodes';
+import TrainStatus from '../chatbotcomponents/TrainStatus';
+import TrainSchedule from '../chatbotcomponents/TrainSchedule';
+import PnrStatus from '../chatbotcomponents/PnrStatus';
 const Chatbot = () => {
     const { state } = useLocation();
     
-    const [sourceCity, setSourceCity] = useState("");
-    const [destinationCity, setDestinationCity] = useState("");
-     const [sourceCityStations, setSourceCityStations] = useState([]);
-     const [destinationCityStations, setDestinationCityStations] = useState([]);
-      const [isSourceCityActive, setIsSourceCityActive] = useState(false);
-      const [isDestinationCityActive, setIsDestinationCityActive] =
-        useState(false);
-       const [sourceStation, setSourceStation] = useState("");
-       const [destinationStation, setDestinationStation] = useState("");
-       const [allTrains, setAllTrains] = useState([]);
-       const [journeyDate, setJourneyDate] = useState("");
        const [text,setText]=useState("");
+       const [result,setResult]=useState({})
       
       
 
@@ -75,6 +72,9 @@ const Chatbot = () => {
                 `/queryDetails?query=${transcript}&toLang=${state}`
               );
               console.log(response);
+              response.then((res)=>
+              setResult(res.data)).catch((err)=>
+              console.log(err))
             
             //console.log(voiceData);
             // const response=axios.get(`/voiceData?vData=${transcript}&toLang=${state}`);
@@ -130,6 +130,7 @@ const Chatbot = () => {
            }
        const response=axios.get(`/queryDetails?query=${text}&toLang=${state}`);
        console.log(response);
+
     
     }
     
@@ -145,7 +146,7 @@ const Chatbot = () => {
           id="exampleFormControlTextarea1"
           rows="3"
           placeholder="Your message"
-          onChange={(e)=>setText(e.target.value)}
+          onChange={(e) => setText(e.target.value)}
         ></textarea>
         <label
           htmlFor="exampleFormControlTextarea1"
@@ -153,9 +154,26 @@ const Chatbot = () => {
         >
           Example textarea
         </label>
-
       </div>
-      <CustomButton title="Submit" handleClick={getAllqueryDetails}/>
+      <CustomButton title="Submit" handleClick={getAllqueryDetails} />
+
+      <div>
+        {result.flag === 1 && <ShowBothStations result={result} />}
+        {result.flag === 2 && <ShowSingleStation result={result} />}
+        {result.flag === 3 && <WarningFirst result={result} />}
+        {result.flag === 4 && <TrainsBothCodes result={result} />}
+        {result.flag === 5 && <WarningFirst result={result} />}
+        {result.flag === 6 && <ShowBothStations result={result} />}
+        {result.flag === 7 && <ShowSingleStation result={result} />}
+        {result.flag === 8 && <ShowSingleStation result={result} />}
+        {result.flag === 9 && <WarningFirst result={result} />}
+        {result.flag === 10 && <TrainStatus result={result} />}
+        {result.flag === 11 && <WarningFirst result={result} />}
+        {result.flag === 12 && <TrainSchedule result={result} />}
+        {result.flag === 13 && <WarningFirst result={result} />}
+        {result.flag === 14 && <PnrStatus result={result} />}
+        {result.flag === 15 && <WarningFirst result={result} />}
+      </div>
     </div>
   );
 }
