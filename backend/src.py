@@ -13,7 +13,7 @@ from flask import Flask, request, jsonify
 import requests
 
 app = Flask(__name__)
-API_KEY = "9c1dc109ccmsh16fa54b80272afep1c1d10jsnd9510a76e859"
+API_KEY = "c84b3e3c13mshbe0a32fcd9eb9cfp1bd329jsn15495779d74d"
 
 def words_to_number(word_string):
     
@@ -51,7 +51,7 @@ def extract_info(sentence):
     starting_point = []
     destination = []
     journey_date = None
-    duration = 0.0
+    duration = 0
     Train_Num = 00000
     source_code = None
     dest_code = None
@@ -78,18 +78,18 @@ def extract_info(sentence):
         "panipat", "bhopal", "pune","delhi"]
 
     month_map = {
-        "January": "01",
-        "February": "02",
-        "March": "03",
-        "April": "04",
-        "May": "05",
-        "June": "06",
-        "July": "07",
-        "August": "08",
-        "September": "09",
-        "October": "10",
-        "November": "11",
-        "December": "12",
+        "january": "01",
+        "february": "02",
+        "march": "03",
+        "april": "04",
+        "may": "05",
+        "june": "06",
+        "july": "07",
+        "august": "08",
+        "september": "09",
+        "october": "10",
+        "november": "11",
+        "december": "12",
     }
 
     encountered_on = False  # Flag to track the "on" keyword
@@ -110,7 +110,8 @@ def extract_info(sentence):
             encountered_train = True
             encountered_in = False
             continue
-
+        if token.text == "the":
+            continue
         if token.text == "and":
             continue
 
@@ -174,6 +175,7 @@ def extract_info(sentence):
         elif "from" == token.text:
             # starting_point = [t.text for t in token.subtree if t.dep_ not in ('punct', 'prep')]
             # print(starting_point)
+            print("from")
             encountered_from = True
         elif "on" == token.text and journey_date == None:
             encountered_from = False
@@ -194,9 +196,15 @@ def extract_info(sentence):
 
                 text = day
                 inte = re.findall(r'\d+', text)
+                print("anhjiasdn")
+                print(text)
+                print(inte)
+                print(month)
 
                 if day and month:
                     journey_date = f"{inte[0]}-{month}-2023"
+                    print("l")
+                    print(journey_date)
 
         elif encountered_from:
 
@@ -313,24 +321,53 @@ def get_pnr_status():
         data=response_data.get('data')
         print(data)
         translator=Translator()
-        data['TrainName']=translator.translate(data['TrainName'],dest=lang).text
-        data['BoardingStationName'] = translator.translate(
-            data['BoardingStationName'], dest=lang).text
-        data['ReservationUptoName'] = translator.translate(
-            data['ReservationUptoName'], dest=lang).text
+        str=data['TrainName']
+        if(len(str)>1):
+            arr=str.split(" ")
+        res=""
+        for word in arr:
+            res+=translator.translate(word, dest=lang).text
+            res+=" "
+        data['TrainName']=res
+        str2 = data['BoardingStationName']
+        if(len(str2)>1):
+            arr2=str2.split(" ")
+        res2 = ""
+        for word2 in arr2:
+            res2 += translator.translate(word2, dest=lang).text
+            res2 += " "
+        data['BoardingStationName'] = res2
+        str2 = data['ReservationUptoName']
+        if (len(str2) > 1):
+            arr2 = str2.split(" ")
+        res2 = ""
+        for word2 in arr2:
+            res2 += translator.translate(word2, dest=lang).text
+            res2 += " "
+        data['ReservationUptoName'] = res2
+            
+        
         for item in data['PassengerStatus']:
             print(".")
-            item['BookingStatus'] = translator.translate(
-                item['BookingStatus'], dest=lang).text
-            print("1")
-            item['CurrentStatus'] = translator.translate(
-                item['CurrentStatus'], dest=lang).text
+           
+            item['BookingStatus'] = translator.translate(item['BookingStatus'], dest=lang).text
+            
+         
+            item['CurrentStatus'] = translator.translate(item['CurrentStatus'], dest=lang).text
+
             print("2")
             item['BookingStatusNew'] = translator.translate(
                 item['BookingStatusNew'], dest=lang).text
             print("3")
-            item['CurrentStatusNew'] = translator.translate(
-                item['CurrentStatusNew'], dest=lang).text
+            str2 = item['CurrentStatusNew']
+            res=""
+            if (len(str2) > 1):
+              for char in str2:
+                  res+=translator.translate(
+                      char, dest=lang).text
+                  
+
+            item['CurrentStatusNew'] = res
             print("4")
 
         print(data)
@@ -401,11 +438,12 @@ def get_all_Details():
     
     dict1 = {
 
-        "searchStation": ["find a station", "find stations", "what stations are there", "what stations are", "describe all stations", "describe stations", "stations list", "list of stations", "what are the stations", "which stations are"],
-        "TrainsbetweenStations": ["find trains", "find all trains", "trains list", "what are the trains", "describe all tarins", "describe trains", "list of trains"],
-        "TrainNumStatus": ["live status", "currently", "now", "at this moment", "at the moment"],
-        "TrainNumSchedule": ["schedule", "on which days", "timings", "type"],
-        "PNRNumber": ["pnr"]
+        "searchStation": ["find a station", "find stations", "what stations are there", "what stations are", "describe all stations", "describe stations", "stations list", "list of stations", "which stations are"],
+        "TrainsbetweenStations": ["search trains", "search all trains", "find trains", "find all trains", "trains list", "what are the trains", "describe all tarins", "describe trains", "list of trains", "what trains are there", "in another", "in the next", "in next"],
+        "TrainNumStatus": ["live status", "currently", "now", "at this moment", "at the moment", "running status"],
+        "TrainNumSchedule": ["schedule", "on which days", "timings", "type", "running days"],
+        "PNRNumber": ["pnr"],
+       
     }
 
 
@@ -415,7 +453,8 @@ def get_all_Details():
     "TrainbetweenStations": False,
     "TrainNumStatus": False,
     "TrainNumSchedule": False,
-    "PNRNumber": False
+    "PNRNumber": False,
+   
     }
 
     print(translated_text)
@@ -469,17 +508,60 @@ def get_all_Details():
         print(destination)
         print(source_code)
         print(dest_code)
-        if(source_code!=None and dest_code!=None and journey_date!=None):
+        print(journey_date)
+
+        if journey_date != None:
+    
+              if (source_code != None and dest_code != None and journey_date != None):
+                    print("enter")
+                    trainbtwStations=requests.get(
+                        f'http://localhost:5000/trains?sourceStation={source_code}&destinationStation={dest_code}&journeyDate={journey_date}&lang={lang}')
+                    dict = {"flag": 4, "trains": trainbtwStations.json()}
+                    return jsonify(dict)
+              elif(starting_point!="" and destination!="" and journey_date!=None):
+                    print("enter3")
+                    print(starting_point)
+                    print(destination)
+                    search_station_response = requests.get(
+                    f'http://localhost:5000/search_station?query={starting_point}&toLang={lang}')
+                    print("enc")
+                    print(search_station_response.json())
+            
+                    search_dest_station_response = requests.get(
+                         f'http://localhost:5000/search_station?query={destination}&toLang={lang}')
+                    print(search_dest_station_response.json())
+                    dict={"flag":6,"srcStation":search_station_response.json(),"destStation":search_dest_station_response.json(),"message":"Renter the query with cooresponding station codes"}
+                    print(dict)
+                    return jsonify(dict)
+              elif(source_code!=None and destination!="" and journey_date!=None):
+                    print("enter4")
+                    search_dest_station_response = requests.get(
+                        f'http://localhost:5000/search_station?query={destination}&toLang={lang}')
+                    dict = {"flag":7,"srcStation": search_dest_station_response.json(),
+                        "message": "Renter the query with cooresponding destination station codes"}
+                    return jsonify(dict)
+              elif(starting_point!="" and dest_code!=None and journey_date!=None):
+                    print("enter5")
+                    search_station_response = requests.get(
+                          f'http://localhost:5000/search_station?query={starting_point}&toLang={lang}')
+                    dict = {"flag":8,"srcStation": search_station_response.json(),
+                    "message": "Renter the query with cooresponding source station codes"}
+                    return jsonify(dict)
+         
+        if duration >= 0 and duration <= 2:
+            duration = 2
+        elif duration > 2 and duration <= 4:
+            duration = 4
+        else:
+            duration = 8
+        
+        if(source_code!=None and dest_code!=None ):
             print("enter")
             trainbtwStations=requests.get(
-                f'http://localhost:5000/trains?sourceStation={source_code}&destinationStation={dest_code}&journeyDate={journey_date}&lang={lang}')
-            dict = {"flag": 4, "trains": trainbtwStations.json()}
+                f'http://localhost:5000/get_live_station?sourceStation={source_code}&destinationStation={dest_code}&hours={duration}&lang={lang}')
+            dict = {"flag": 16, "trains": trainbtwStations.json()}
             return jsonify(dict)
-        elif (source_code != None and dest_code != None and journey_date == None):
-            print("enter 2")
-            dict = {"flag": 5, 'warning': 'Enter the journey date'}
-            return jsonify(dict)
-        elif(starting_point!="" and destination!="" and journey_date!=None):
+        elif(starting_point!="" and destination!="" ):
             print("enter3")
             print(starting_point)
             print(destination)
@@ -491,25 +573,29 @@ def get_all_Details():
             search_dest_station_response = requests.get(
               f'http://localhost:5000/search_station?query={destination}&toLang={lang}')
             print(search_dest_station_response.json())
-            dict={"flag":6,"srcStation":search_station_response.json(),"destStation":search_dest_station_response.json(),"message":"Renter the query with cooresponding station codes"}
+            dict={"flag":18,"srcStation":search_station_response.json(),"destStation":search_dest_station_response.json(),"message":"Renter the query with cooresponding station codes"}
             print(dict)
             return jsonify(dict)
-        elif(source_code!=None and destination!="" and journey_date!=None):
+        elif(source_code!=None and destination!=""):
             print("enter4")
             search_dest_station_response = requests.get(
                 f'http://localhost:5000/search_station?query={destination}&toLang={lang}')
-            dict = {"flag":7,"srcStation": search_dest_station_response.json(),
+            dict = {"flag":19,"srcStation": search_dest_station_response.json(),
                     "message": "Renter the query with cooresponding destination station codes"}
             return jsonify(dict)
-        elif(starting_point!="" and dest_code!=None and journey_date!=None):
+        elif(starting_point!="" and dest_code!=None ):
             print("enter5")
             search_station_response = requests.get(
                 f'http://localhost:5000/search_station?query={starting_point}&toLang={lang}')
-            dict = {"flag":8,"srcStation": search_station_response.json(),
+            dict = {"flag":20,"srcStation": search_station_response.json(),
                     "message": "Renter the query with cooresponding source station codes"}
             return jsonify(dict)
+        elif (source_code != None and dest_code != None and journey_date == None):
+            print("enter 2")
+            dict = {"flag": 5, 'warning': 'Enter the journey date'}
+            return jsonify(dict)
         else:
-            dict={"flag":9,'warning':'Enter the proper details with station codes and journey date'}
+            dict={"flag":21,'warning':'Enter the proper details with station codes and journey date'}
             return jsonify(dict)
         
     elif (fval == "TrainNumStatus"):
@@ -550,7 +636,7 @@ def get_all_Details():
             dict = {
                 "flag": 15, 'warning': 'Enter the proper details with correct pnr number'}
             return jsonify(dict)
-
+   
 
 
         
@@ -630,6 +716,51 @@ def get_voice_data():
     return jsonify(dictionary)
 
 
+@app.route('/get_live_station', methods=['GET'])
+def get_live_det():
+    
+    from_station_code = request.args.get('sourceStation')
+    to_station_code = request.args.get('destinationStation')
+    hours = request.args.get('hours')
+    lang=request.args.get("lang")
+    print(from_station_code)
+    print(to_station_code)
+    print(hours)
+    
+    if not from_station_code or not to_station_code or not hours:
+        return jsonify({"error": "Missing required parameters"}), 400
+
+
+    headers = {
+        'X-RapidAPI-Key': API_KEY,
+        'X-RapidAPI-Host': 'irctc1.p.rapidapi.com'
+    }
+
+    url = 'https://irctc1.p.rapidapi.com/api/v3/getLiveStation'
+
+    
+    params = {
+        'fromStationCode': from_station_code,
+        'toStationCode': to_station_code,
+        'hours': hours
+    }
+
+
+    try:
+        # Send the GET request
+        response = requests.get(url, headers=headers, params=params)
+
+        # Check the response status code
+        if response.status_code == 200:
+            newdata= response.get('data')
+            print(newdata)
+            return jsonify(response.json())
+        else:
+            return jsonify({"error": "Failed to fetch data"}), response.status_code
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/getLiveTrainStatus', methods=['GET'])
 def get_live_station():
     st = request.args.get("train_num")
@@ -683,8 +814,11 @@ def get_trains():
     destination_station = request.args.get("destinationStation")
     journey_date = request.args.get("journeyDate")
     lang=request.args.get("lang")
-    
+    print("sys")
     print(source_station)
+    print(destination_station)
+    print(journey_date)
+    print("sys")
 
 
     params = {

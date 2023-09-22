@@ -130,6 +130,9 @@ const Chatbot = () => {
            }
        const response=axios.get(`/queryDetails?query=${text}&toLang=${state}`);
        console.log(response);
+        response
+          .then((res) => setResult(res.data))
+          .catch((err) => console.log(err));
 
     
     }
